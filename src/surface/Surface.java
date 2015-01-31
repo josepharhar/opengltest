@@ -8,36 +8,46 @@ import static org.lwjgl.BufferUtils.*;
 public class Surface {
     
     public static float[] pointsArray = new float[]{
-        -4f, -4f, 0f,
-        -2f, 4f, 0f,
-        2f, -4f, 0f,
-        4f, 4f, 0f
+        -1.5f, -1.5f, 4f, -0.5f, -1.5f, 2f,
+        0.5f, -1.5f, -1f, 1.5f, -1.5f, 2f,
+        -1.5f, -.5f, 1f, -.5f, -.5f, 3f,
+        .5f, -.5f, 0f, 1.5f, -.5f, -1f,
+        -1.5f, .5f, 4f, -.5f, .5f, 0f,
+        0.5f, 0.5f, 3.0f, 1.5f, 0.5f, 4.0f,
+        -1.5f, 1.5f, -2f, -0.5f, 1.5f, -2f,
+        0.5f, 1.5f, 0f, 1.5f, 1.5f, -1f
     };
     
     public static void init() {
         glClearColor(0f, 0f, 0f, 0f);
-        glShadeModel(GL_FLAT);
         
         FloatBuffer pointsBuffer = createFloatBuffer(pointsArray.length);
         pointsBuffer.put(pointsArray);
         pointsBuffer.flip();
         
-        glMap1f(GL_MAP1_VERTEX_3, 0f, 1f, 3, 4, pointsBuffer);
-        glEnable(GL_MAP1_VERTEX_3);
+        glMap2f(GL_MAP2_VERTEX_3, 0f, 1f, 3, 4, 0, 1f, 12, 4, pointsBuffer);
+        glEnable(GL_MAP2_VERTEX_3);
+        glMapGrid2f(20, 0, 1, 20, 0, 1);
+        glEnable(GL_DEPTH_TEST);
+        glShadeModel(GL_FLAT);
     }
     
     public static void draw() {
-        glBegin(GL_LINE_STRIP);
-            for (int i = 0; i < 30; i++) {
-                glEvalCoord1f((float)((float)i/30f));
+        glColor3f(1f, 1f, 1f);
+        glPushMatrix();
+            glRotatef(85f, 1f, 1f, 1f);
+            for (int i = 0; i < 8; i++) {
+                glBegin(GL_LINE_STRIP);
+                    for (int j = 0; j <= 30; j++) {
+                        glEvalCoord2f((float)j/30.0f, (float)i/8.0f);
+                    }
+                glEnd();
+                glBegin(GL_LINE_STRIP);
+                    for (int j = 0; j <= 30; j++) {
+                        glEvalCoord2f((float)i/8.0f, (float)j/30.0f);
+                    }
+                glEnd();
             }
-        glEnd();
-        
-        glPointSize(3);
-        glBegin(GL_POINTS);
-        for (int i = 0; i < pointsArray.length; i += 3) {
-            glVertex3f(pointsArray[i], pointsArray[i + 1], pointsArray[i + 2]);
-        }
-        glEnd();
+        glPopMatrix();
     }
 }

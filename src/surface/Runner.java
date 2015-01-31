@@ -1,8 +1,11 @@
 package surface;
 
+import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
 
 //This import allows calls without the GL11.
@@ -17,8 +20,13 @@ public class Runner {
     private float x = 0;
     private float y = 0;
     private float z = 0;
-    
-    private float rotation = 0;
+
+    double downx = 0.0;
+    double downy = 0.0;
+    boolean pressed = false;
+    float diffx = 0.0f;
+    float diffy = 0.0f;
+    float rotation = 0.0f;
     
     public static void main(String[] args) {
         try {
@@ -40,37 +48,39 @@ public class Runner {
         
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        glOrtho(-20, 20, -20, 20, -20, 20);
+        glOrtho(-5, 5, -5, 5, -5, 5);
         glMatrixMode(GL_MODELVIEW);
         
-        BezierCurve.init();
-        //Surface.init();
+//        BezierCurve.init();
+        Surface.init();
         
-        FloatBuffer ambient  = createFloatBuffer(4).put(new float[]{0.2f, 0.2f, 0.2f, 1.0f});
-        ambient.flip();
-        FloatBuffer position = createFloatBuffer(4).put(new float[]{0.0f, 0.0f, 2.0f, 1.0f});
-        position.flip();
-        FloatBuffer mat_diffuse = createFloatBuffer(4).put(new float[]{0.6f, 0.6f, 0.6f, 1.0f});
-        mat_diffuse.flip();
-        FloatBuffer mat_specular = createFloatBuffer(4).put(new float[]{1.0f, 1.0f, 1.0f, 1.0f});
-        mat_specular.flip();
-        FloatBuffer mat_shininess = createFloatBuffer(4).put(new float[]{50.0f, 0, 0, 0});
-        mat_shininess.flip();
-
-        glEnable(GL_LIGHTING);
-        glEnable(GL_LIGHT0);
-        
-        glLight(GL_LIGHT0, GL_AMBIENT, ambient);
-        glLight(GL_LIGHT0, GL_POSITION, position);
-        
-        glMaterial(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-        glMaterial(GL_FRONT, GL_SPECULAR, mat_specular);
-        glMaterial(GL_FRONT, GL_SHININESS, mat_shininess);
+//        FloatBuffer ambient  = createFloatBuffer(4).put(new float[]{0.2f, 0.2f, 0.2f, 1.0f});
+//        ambient.flip();
+//        FloatBuffer position = createFloatBuffer(4).put(new float[]{0.0f, 0.0f, 2.0f, 1.0f});
+//        position.flip();
+//        FloatBuffer mat_diffuse = createFloatBuffer(4).put(new float[]{0.6f, 0.6f, 0.6f, 1.0f});
+//        mat_diffuse.flip();
+//        FloatBuffer mat_specular = createFloatBuffer(4).put(new float[]{1.0f, 1.0f, 1.0f, 1.0f});
+//        mat_specular.flip();
+//        FloatBuffer mat_shininess = createFloatBuffer(4).put(new float[]{50.0f, 0, 0, 0});
+//        mat_shininess.flip();
+//
+//        glEnable(GL_LIGHTING);
+//        glEnable(GL_LIGHT0);
+//        
+//        glLight(GL_LIGHT0, GL_AMBIENT, ambient);
+//        glLight(GL_LIGHT0, GL_POSITION, position);
+//        
+//        glMaterial(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+//        glMaterial(GL_FRONT, GL_SPECULAR, mat_specular);
+//        glMaterial(GL_FRONT, GL_SHININESS, mat_shininess);
     }
     
     private void loop() {
         while (!Display.isCloseRequested()) {
             glLoadIdentity();
+            
+            //Keyboard
             if (Keyboard.isKeyDown(Keyboard.KEY_UP)) {
                 y += .001f;
             } else if (Keyboard.isKeyDown(Keyboard.KEY_DOWN)) {
@@ -86,6 +96,28 @@ public class Runner {
             } else if (Keyboard.isKeyDown(Keyboard.KEY_S)){
                 z -= .001f;
             }
+            
+            //Mouse
+            if (Mouse.isButtonDown(0)) {
+                if (!pressed) {
+                    // Just clicked down for the first time, need to store this cursor location
+                    pressed = true;
+                    downx = Mouse.getX();
+                    downy = Mouse.getY();
+                } else {
+                    // Being held down, need to update rotation relative to init location
+                    diffy = (float) -(Mouse.getX() - downx);
+                    diffx = (float) -(Mouse.getY() - downy);
+                    
+                    //total distance cursor has traveled to be used for the rotation
+                    double distance = Math.sqrt(diffx * diffx + diffy * diffy);
+                    //20 pixels will be 180 degrees of rotation
+                    //glRotatef uses DEGREES, NOT RADIANS
+                    rotation = (float) (distance / 3.0);
+                }
+            }
+            
+            //Draw
             draw();
         }
     }
@@ -94,20 +126,16 @@ public class Runner {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glTranslatef(x, y, z);
         
-        BezierCurve.draw();
+//        rotation += 0.01f;
+        System.out.println("Rotation: " + rotation);
+        System.out.println("diffx: " + diffx);
+        System.out.println("diffy: " + diffy);
+        glRotatef(rotation, diffx, -diffy, 0f);
         
-//        glRotatef(0.01f, 2, 1, 0);
+        Axis.draw();
         
-//        glBegin(GL_POINTS);
-////            for (int i = nu1; i <= nu2; i++)
-////                for (int j = nv1; j <= nv2; j++)
-////                    glEvalCoord2(u1 + i*(u2-u1)/nu, v1+j*(v2-v1)/nv);
-//            glEvalCoord2f(1, 2);
-//            glEvalCoord2f(2, 2);
-//            glEvalCoord2f(3, 2);
-//        glEnd();
-        
-//        drawCube();
+//        BezierCurve.draw();
+        Surface.draw();
         
         Display.update();
     }
