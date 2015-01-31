@@ -1,12 +1,15 @@
-package opengltest;
+package surface;
+
+import java.nio.FloatBuffer;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.*;
 
 //This import allows calls without the GL11.
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.BufferUtils.*;
 
-public class Test {
+public class Runner {
     
     private int width = 800;
     private int height = 800;
@@ -19,7 +22,7 @@ public class Test {
     
     public static void main(String[] args) {
         try {
-            new Test().run();
+            new Runner().run();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -39,6 +42,30 @@ public class Test {
         glLoadIdentity();
         glOrtho(-20, 20, -20, 20, -20, 20);
         glMatrixMode(GL_MODELVIEW);
+        
+        BezierCurve.init();
+        //Surface.init();
+        
+        FloatBuffer ambient  = createFloatBuffer(4).put(new float[]{0.2f, 0.2f, 0.2f, 1.0f});
+        ambient.flip();
+        FloatBuffer position = createFloatBuffer(4).put(new float[]{0.0f, 0.0f, 2.0f, 1.0f});
+        position.flip();
+        FloatBuffer mat_diffuse = createFloatBuffer(4).put(new float[]{0.6f, 0.6f, 0.6f, 1.0f});
+        mat_diffuse.flip();
+        FloatBuffer mat_specular = createFloatBuffer(4).put(new float[]{1.0f, 1.0f, 1.0f, 1.0f});
+        mat_specular.flip();
+        FloatBuffer mat_shininess = createFloatBuffer(4).put(new float[]{50.0f, 0, 0, 0});
+        mat_shininess.flip();
+
+        glEnable(GL_LIGHTING);
+        glEnable(GL_LIGHT0);
+        
+        glLight(GL_LIGHT0, GL_AMBIENT, ambient);
+        glLight(GL_LIGHT0, GL_POSITION, position);
+        
+        glMaterial(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+        glMaterial(GL_FRONT, GL_SPECULAR, mat_specular);
+        glMaterial(GL_FRONT, GL_SHININESS, mat_shininess);
     }
     
     private void loop() {
@@ -54,27 +81,35 @@ public class Test {
             } else if (Keyboard.isKeyDown(Keyboard.KEY_LEFT)){
                 x -= .001f;
             }
+            if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
+                z += .001f;
+            } else if (Keyboard.isKeyDown(Keyboard.KEY_S)){
+                z -= .001f;
+            }
             draw();
         }
     }
     
     private void draw() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        drawSquare();
         glTranslatef(x, y, z);
+        
+        BezierCurve.draw();
+        
+//        glRotatef(0.01f, 2, 1, 0);
+        
+//        glBegin(GL_POINTS);
+////            for (int i = nu1; i <= nu2; i++)
+////                for (int j = nv1; j <= nv2; j++)
+////                    glEvalCoord2(u1 + i*(u2-u1)/nu, v1+j*(v2-v1)/nv);
+//            glEvalCoord2f(1, 2);
+//            glEvalCoord2f(2, 2);
+//            glEvalCoord2f(3, 2);
+//        glEnd();
+        
 //        drawCube();
+        
         Display.update();
-    }
-    
-    private void drawSquare() {
-        glRotatef(0.01f, 2, 1, 0);
-        glColor3f(0.5f, 0.5f, 1.0f);
-        glBegin(GL_QUADS);
-            glVertex2f(-1, -1);
-            glVertex2f(1, -1);
-            glVertex2f(1, 1);
-            glVertex2f(-1, 1);
-        glEnd();
     }
     
     private void drawCube() {
