@@ -35,19 +35,20 @@ public class Surface {
     public static void draw() {
         glColor3f(1f, 1f, 1f);
         glPushMatrix();
-            glRotatef(85f, 1f, 1f, 1f);
-            for (int i = 0; i < 8; i++) {
-                glBegin(GL_LINE_STRIP);
-                    for (int j = 0; j <= 30; j++) {
-                        glEvalCoord2f((float)j/30.0f, (float)i/8.0f);
-                    }
-                glEnd();
-                glBegin(GL_LINE_STRIP);
-                    for (int j = 0; j <= 30; j++) {
-                        glEvalCoord2f((float)i/8.0f, (float)j/30.0f);
-                    }
-                glEnd();
-            }
+            glEvalMesh2(GL_FILL, 0, 20, 0, 20);
+//            glRotatef(85f, 1f, 1f, 1f);
+//            for (int i = 0; i < 8; i++) {
+//                glBegin(GL_LINE_STRIP);
+//                    for (int j = 0; j <= 30; j++) {
+//                        glEvalCoord2f((float)j/30.0f, (float)i/8.0f);
+//                    }
+//                glEnd();
+//                glBegin(GL_LINE_STRIP);
+//                    for (int j = 0; j <= 30; j++) {
+//                        glEvalCoord2f((float)i/8.0f, (float)j/30.0f);
+//                    }
+//                glEnd();
+//            }
         glPopMatrix();
     }
 }
