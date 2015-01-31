@@ -1,16 +1,11 @@
 package surface;
 
-import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
-
-import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
 
 //This import allows calls without the GL11.
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.BufferUtils.*;
 
 public class Runner {
     
@@ -43,7 +38,9 @@ public class Runner {
     
     private void init() throws Exception {
         //LWJGL 2 setup
-        Display.setDisplayMode(new DisplayMode(width, height));
+        DisplayMode displayMode = new DisplayMode(width, height);
+        Display.setDisplayMode(displayMode);
+        Display.setResizable(true);
         Display.create();
         
         glMatrixMode(GL_PROJECTION);
